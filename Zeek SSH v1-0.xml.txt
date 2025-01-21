@@ -1,0 +1,104 @@
+<form version="1.1" theme="dark">
+  <label>Zeek SSH (v1.0)</label>
+  <description>V1 Additions: First generation of dashboard</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="time">
+      <label>Time Selection</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total SSH Logs</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:ssh:json"
+| stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Weird SSH Clients</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:ssh:json"   NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| stats count by client, id.orig_h, id.resp_h
+| where !like (client, "-") AND !like (client, "%SSH%")
+| rename client AS "Client", id.orig_h AS Source, id.resp_h AS Destination
+| sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Weird SSH Ports</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:ssh:json" NOT id.resp_p = "22"   NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| fillnull value="-" client, id.orig_h, id.resp_h, id.resp_p, server
+| stats count by client, id.orig_h, id.resp_h, id.resp_p, server
+| rename id.orig_h AS Source, id.resp_h AS Destination, id.resp_p AS Port, server AS Server, client AS Client
+| sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>CIDR16 Traffic Breakdown</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:ssh:json"   NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| fillnull client, id.orig_h, id.resp_h, id.resp_p, server
+| stats count by client, id.orig_h, id.resp_h, id.resp_p, server
+| rex field=id.orig_h "(?&lt;orig_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval orig_subnet=orig_subnet + ".0.0/16"
+| rex field=id.resp_h "(?&lt;resp_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval resp_subnet=resp_subnet + ".0.0/16"
+| where !like (client, "-")
+| stats count by orig_subnet, resp_subnet
+| sort -count
+| rename orig_subnet AS "Source Subnet", resp_subnet AS "Destination Subnet"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

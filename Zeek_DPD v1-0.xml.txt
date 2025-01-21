@@ -1,0 +1,157 @@
+<form version="1.1" theme="dark">
+  <label>Zeek DPD (V1.0)</label>
+  <description>V1 Additions: First generation of dashboard</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="Time">
+      <label>Time Selection</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total DPD Logs (Excluding Scanners)</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:dpd:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| stats count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>DPD Overview</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:dpd:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+    
+| stats count by analyzer, src_ip, dest_ip, dest_port, failure_reason
+
+```High Port Rename Function```
+| eval dest_port=tonumber(dest_port)
+| appendpipe [where dest_port &gt; 1024 | eval dest_port = "High Port"]
+| mvexpand dest_port
+| where (dest_port &lt; tonumber(1025) OR dest_port = "High Port")
+
+```CIDR 16 Function```
+| rex field=src_ip "(?&lt;orig_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval orig_subnet=orig_subnet + ".0.0/16"
+| rex field=dest_ip "(?&lt;resp_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval resp_subnet=resp_subnet + ".0.0/16"
+
+```Simplify Failure Reasons```
+| appendpipe [where like (failure_reason, "Binpac exception:%")| eval failure_reason="Binpac exception"]
+| appendpipe [where like (failure_reason, "Invalid version late in TLS connection%")| eval failure_reason="Invalid version late in TLS connection"]
+| appendpipe [where like (failure_reason, "not a http request line")| eval failure_reason="Invalid HTTP request"]
+| appendpipe [where like (failure_reason, "not a http reply line")| eval failure_reason="Invalid HTTP reply"]
+| mvexpand failure_reason
+| where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection%") AND !like (failure_reason, "not a http reply line")
+
+| stats count by analyzer, orig_subnet, resp_subnet, dest_port, failure_reason
+| sort by -count
+| rename analyzer AS "Detected Protocol", orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", dest_port AS "Destination Port", failure_reason AS "Failure Reason", count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Unique Detected Protocols</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:dpd:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| stats count by analyzer
+| sort by -count
+| rename analyzer AS "Detected Protocol", count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Unique Failure Reasons</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:dpd:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+| stats count by analyzer, src_ip, dest_ip, dest_port, failure_reason
+
+```Simplify Failure Reasons```
+| appendpipe [where like (failure_reason, "Binpac exception:%")| eval failure_reason="Binpac exception"]
+| appendpipe [where like (failure_reason, "Invalid version late in TLS connection%")| eval failure_reason="Invalid version late in TLS connection"]
+| appendpipe [where like (failure_reason, "not a http request line")| eval failure_reason="Invalid HTTP request"]
+| appendpipe [where like (failure_reason, "not a http reply line")| eval failure_reason="Invalid HTTP reply"]
+| mvexpand failure_reason
+| where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection%") AND !like (failure_reason, "not a http reply line")
+
+| stats count by failure_reason
+| sort by -count
+| rename failure_reason AS "Failure Reason", count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>CIDR16 Traffic Breakdown</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:dpd:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format] 
+    
+```CIDR 16 Function```
+| rex field=src_ip "(?&lt;orig_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval orig_subnet=orig_subnet + ".0.0/16"
+| rex field=dest_ip "(?&lt;resp_subnet&gt;\d+\.\d+)\.\d+\.\d+"
+| eval resp_subnet=resp_subnet + ".0.0/16"
+
+| stats count by orig_subnet, resp_subnet
+| sort by -count
+| rename orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

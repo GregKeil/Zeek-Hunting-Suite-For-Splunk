@@ -1,0 +1,120 @@
+<form version="1.1" theme="dark">
+  <label>Zeek Files (V1.0)</label>
+  <description>V1 Additions: First generation of dashboard</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="Time">
+      <label>Time Selection</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="T-MD5">
+      <label>MD5 Search</label>
+      <default>2a4faa344a658f42800ecbffb14328b1</default>
+    </input>
+    <input type="text" token="T-Filename">
+      <label>File Name Search</label>
+      <default>onedrive\pst_migration.ps1</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>EXE Files &amp; PS1 Scripts</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:files:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format]
+AND analyzers="MD5"
+| stats count by attachment_type, file_name, md5
+| eval file_name=lower(file_name)
+| where like (file_name, "%.ps1") OR like (file_name, "%.exe")
+| sort by -count
+| rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Strange TXT Files</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:files:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format]
+AND analyzers="MD5"
+| stats count by attachment_type, file_name, md5
+| eval file_name=lower(file_name)
+| where like (file_name, "%.txt")
+| where !like (file_name, "json.txt") AND !like (file_name, "windows\temp\fstmp\fs_smbfile_%.%.%.%-%.txt")
+| sort by -count
+| rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>File Name Search</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:files:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format]
+AND analyzers="MD5"
+| stats count by attachment_type, file_name, md5, src, dest, dest_port
+| eval file_name=lower(file_name)
+| where like (file_name, "$T-Filename$")
+| sort by -count
+| rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count, src AS "Source IP", dest AS "Destination IP", dest_port AS "Destination Port"</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>MD5 Search</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:files:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format]
+AND analyzers="MD5"
+| stats count by attachment_type, file_name, md5, src, dest, dest_port
+| eval file_name=lower(file_name)
+| where like (md5, "$T-MD5$")
+| sort by -count
+| rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count, src AS "Source IP", dest AS "Destination IP", dest_port AS "Destination Port"</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

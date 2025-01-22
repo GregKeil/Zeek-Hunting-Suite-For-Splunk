@@ -20,6 +20,28 @@
   </fieldset>
   <row>
     <panel>
+      <single>
+        <title>Total Zeek File Logs (Excluding Known Scanners)</title>
+        <search>
+          <query>index=<index> sourcetype="zeek:files:json" NOT 
+    [| inputlookup Known_Scanners.csv
+    | rename scannerip AS id.orig_h
+    | table id.orig_h
+    | format]
+AND analyzers="MD5"
+| stats count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <table>
         <title>EXE Files &amp; PS1 Scripts</title>
         <search>

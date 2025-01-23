@@ -8,7 +8,7 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 - **Known_Scanners.csv** Lookup File
 - **Zeek_Suite.json** (Datamodel) must be configured and uploaded
 ### Recommendations: 
-- Splunk App For Lookup File Editing:
+- **Splunk App For Lookup File Editing**
   - https://splunkbase.splunk.com/app/1724
 
 ## Other Notes:

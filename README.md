@@ -6,7 +6,7 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 - **Splunk Common Information Model (CIM)**
   - https://splunkbase.splunk.com/app/1621
 - **Known_Scanners.csv** Lookup File
-- **Zeek_Suite.json** Datamodel must be configured and uploaded
+- **Zeek_Suite.json** (Datamodel) must be configured and uploaded
 ### Recommendations: 
 - Splunk App For Lookup File Editing:
   - https://splunkbase.splunk.com/app/1724

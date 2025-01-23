@@ -54,8 +54,8 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui
 | rename DHCP.orig_mac_oui AS orig_mac_oui
 
-| stats count by orig_mac_oui
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -75,9 +75,10 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
 
-| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
 | where like (orig_mac_oui, "$DeviceType$")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -95,9 +96,10 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
 
-| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
 | where like (mac, "$MACAddr$")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -115,9 +117,10 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
 
-| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
 | where like (host_name, "$HName$")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -135,9 +138,10 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
 
-| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
 | where like (client_fqdn, "$FQDN$")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -155,9 +159,10 @@
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
 
-| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
 | where like (assigned_addr, "$IPAddr$")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "orig_mac_oui"="No Instances Found"]
 | rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>

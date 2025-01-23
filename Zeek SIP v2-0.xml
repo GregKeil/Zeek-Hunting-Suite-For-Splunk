@@ -13,7 +13,7 @@
   <row>
     <panel>
       <single>
-        <title>Total SIP Logs</title>
+        <title>Total SIP Logs (Excluding Known Scanners)</title>
         <search>
           <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.SIP</query>
           <earliest>$time.earliest$</earliest>

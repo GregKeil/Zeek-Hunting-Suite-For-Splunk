@@ -38,7 +38,9 @@
 | where !like (domainname, "$") 
 | where !like (username, "%$")
 | where like (username, "%.da") OR like (username, "%.adm") or like (username, "Administrator")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "domainname"="No Instances Found"]
 | rename domainname AS "Domain Name", server_tree_name AS "Domain Address", server_dns_computer_name AS "FQDN", src AS "Source IP", dest AS "Destination IP", username AS User, count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -62,7 +64,9 @@
 | where !like (domainname, "$")
 | where !like (username, "%$")
 | where like (username, "%.svc") OR like (username, "%svc%")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "domainname"="No Instances Found"]
 | rename domainname AS "Domain Name", server_tree_name AS "Domain Address", server_dns_computer_name AS "FQDN", src AS "Source IP", dest AS "Destination IP", username AS User, count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>

@@ -33,7 +33,9 @@
 | rename SNMP.community AS community, SNMP.src AS src, SNMP.dest AS dest, SNMP.display_string AS display_string
 
 | where like (community, "public") AND !like (display_string, "-")
-| rename community AS Community, src_ip AS "Source IP", dest_ip AS "Destination IP", display_string AS "Display String"</query>
+
+| appendpipe [| stats count | where count=0 | eval "community"="No Instances Found"]
+| rename community AS Community, src AS "Source IP", dest AS "Destination IP", display_string AS "Display String", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
           <refresh>5m</refresh>
@@ -53,6 +55,8 @@
 | rename SNMP.community AS community, SNMP.src AS src, SNMP.dest AS dest, SNMP.display_string AS display_string
 
 | where !like (community, "public")
+
+| appendpipe [| stats count | where count=0 | eval "community"="No Instances Found"]
 | rename community AS Community, src_ip AS "Source IP", dest_ip AS "Destination IP", display_string AS "Display String"</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>

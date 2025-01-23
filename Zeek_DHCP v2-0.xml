@@ -1,0 +1,170 @@
+<form version="1.1" theme="dark">
+  <label>Zeek DHCP (V2.0)</label>
+  <description>V2 Additions: Dashboard Now Rides The Zeek_Suite Datamodel</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="Time">
+      <label>Time Selection</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="DeviceType">
+      <label>Device Type Search</label>
+      <default>Intel Corporate</default>
+    </input>
+    <input type="text" token="MACAddr">
+      <label>MAC Address Search</label>
+      <default>b0:3c:dc:3a:09:03</default>
+    </input>
+    <input type="text" token="HName">
+      <label>Hostname Search</label>
+      <default>N1MFW120146L055</default>
+    </input>
+    <input type="text" token="FQDN">
+      <label>FQDN Search</label>
+      <default>N1MFW120146L055.mcdsus.mcds.usmc.mil</default>
+    </input>
+    <input type="text" token="IPAddr">
+      <label>IP Search</label>
+      <default>137.232.168.67</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total DHCP Logs (Excluding Known Scanners)</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Unique Device Types</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui
+| rename DHCP.orig_mac_oui AS orig_mac_oui
+
+| stats count by orig_mac_oui
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Device Type Search</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
+| rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
+
+| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
+| where like (orig_mac_oui, "$DeviceType$")
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>MAC Address Search</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
+| rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
+
+| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
+| where like (mac, "$MACAddr$")
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Hostname Search</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
+| rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
+
+| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
+| where like (host_name, "$HName$")
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>FQDN Search</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
+| rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
+
+| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
+| where like (client_fqdn, "$FQDN$")
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>IP Search</title>
+        <search>
+          <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac
+| rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
+
+| stats count by assigned_addr, client_fqdn, host_name, mac, orig_mac_oui
+| where like (assigned_addr, "$IPAddr$")
+| sort -count
+| rename orig_mac_oui AS "Device Type", count AS Count, host_name AS Hostname, mac AS MAC, client_fqdn AS FQDN, assigned_addr AS IP</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

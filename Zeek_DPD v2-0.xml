@@ -55,7 +55,9 @@
 | where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection%") AND !like (failure_reason, "not a http reply line")
 
 | stats count by analyzer, orig_subnet, resp_subnet, dest_port, failure_reason
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "analyzer"="No Instances Found"]
 | rename analyzer AS "Detected Protocol", orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", dest_port AS "Destination Port", failure_reason AS "Failure Reason", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -76,6 +78,7 @@
 | rename DPD.analyzer AS analyzer
 
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "analyzer"="No Instances Found"]
 | rename analyzer AS "Detected Protocol", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -102,7 +105,9 @@
 | where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection%") AND !like (failure_reason, "not a http reply line")
 
 | stats count by failure_reason
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "failure_reason"="No Instances Found"]
 | rename failure_reason AS "Failure Reason", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -130,12 +135,15 @@
 | eval resp_subnet=resp_subnet + ".0.0/16"
 
 | stats count by orig_subnet, resp_subnet
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "orig_subnet"="No Instances Found"]
 | rename orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>

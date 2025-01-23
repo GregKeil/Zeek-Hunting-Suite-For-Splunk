@@ -11,11 +11,11 @@
     </input>
     <input type="text" token="T-MD5">
       <label>MD5 Search</label>
-      <default>2a4faa344a658f42800ecbffb14328b1</default>
+      <default>2a4faa344a658f42830ecbffb14328b1</default>
     </input>
     <input type="text" token="T-Filename">
       <label>File Name Search</label>
-      <default>onedrive\pst_migration.ps1</default>
+      <default>onedrive\mcfile.ps1</default>
     </input>
   </fieldset>
   <row>
@@ -44,7 +44,9 @@
 
 | eval file_name=lower(file_name)
 | where like (file_name, "%.ps1") OR like (file_name, "%.exe")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "attachment_type"="No Instances Found"]
 | rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -67,7 +69,9 @@
 | eval file_name=lower(file_name)
 | where like (file_name, "%.txt")
 | where !like (file_name, "json.txt") AND !like (file_name, "windows\temp\fstmp\fs_smbfile_%.%.%.%-%.txt")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "attachment_type"="No Instances Found"]
 | rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -87,7 +91,9 @@
 
 | eval file_name=lower(file_name)
 | where like (file_name, "$T-Filename$")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "attachment_type"="No Instances Found"]
 | rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count, src AS "Source IP", dest AS "Destination IP", dest_port AS "Destination Port"</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>
@@ -107,7 +113,9 @@
 
 | eval file_name=lower(file_name)
 | where like (md5, "$T-MD5$")
+
 | sort by -count
+| appendpipe [| stats count | where count=0 | eval "attachment_type"="No Instances Found"]
 | rename attachment_type AS "File Type", file_name AS Filename, md5 AS MD5, count AS Count, src AS "Source IP", dest AS "Destination IP", dest_port AS "Destination Port"</query>
           <earliest>$Time.earliest$</earliest>
           <latest>$Time.latest$</latest>

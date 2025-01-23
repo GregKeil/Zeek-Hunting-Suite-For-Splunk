@@ -35,7 +35,9 @@
 | rename SIP.uri AS uri, SIP.user_agent AS user_agent, SIP.seq AS seq, SIP.id_orig_h AS id.orig_h,  SIP.id_resp_h AS id.resp_h, SIP.request_from AS request_from
 
 | where !like (seq, "63104 OPTIONS") AND !like (seq, "-")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "uri"="No Instances Found"]
 | rename uri AS URI, user_agent AS "User Agent", seq AS "Request Type", id.orig_h AS Source, id.resp_h AS Destination, request_from AS "Destination Info"</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
@@ -56,7 +58,9 @@
 | rename SIP.status_code AS status_code, SIP.status_msg AS status_msg, SIP.warning AS warning, SIP.id_orig_h AS id.orig_h,  SIP.id_resp_h AS id.resp_h, SIP.response_from AS response_from
 
 | where !like (status_msg, "-")
+
 | sort -count
+| appendpipe [| stats count | where count=0 | eval "status_code"="No Instances Found"]
 | rename status_code AS "Status Code",status_msg AS Status, warning AS Message, id.orig_h AS Source, id.resp_h AS Destination, response_from AS "Destination Info", count AS Count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>

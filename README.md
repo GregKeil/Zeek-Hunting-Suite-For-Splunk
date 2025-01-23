@@ -3,5 +3,5 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 
 ## Note:
 - The Splunk CIM may be needed for proper operation
-- For proper operation, the index for your Zeek logs must be specified in each panel
+- For proper operation, the datamodel must be configured to utilize the correct indexes
 - A lookup file must be created under the name "Known_Scanners.csv" with the field "scannerip" must be used to filter out all known scanners

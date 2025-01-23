@@ -5,6 +5,8 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 ### Requirements:
 - **Splunk Common Information Model (CIM)**
   - https://splunkbase.splunk.com/app/1621
+- **TA For Zeek**
+  - https://splunkbase.splunk.com/app/5466
 - **Known_Scanners.csv** Lookup File
 - **Zeek_Suite.json** (Datamodel) must be configured and installed
 ### Recommendations: 

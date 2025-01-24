@@ -8,7 +8,7 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 - **TA For Zeek**
   - https://splunkbase.splunk.com/app/5466
 - **Known_Scanners.csv** Lookup File
-- **Zeek_Suite_Datamodel.json** must be configured and installed
+- **Zeek_Suite_Datamodel.json** must be configured and installed (Datamodel ID: Zeek_Suite)
 - **All Zeek____.xml Files** are the source code for the individual dashboards
 ### Recommendations: 
 - **Splunk App For Lookup File Editing**

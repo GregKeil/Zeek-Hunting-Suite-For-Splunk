@@ -17,3 +17,5 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 ## Current Version Notes:
 - Version 2 has integrated datamodels to allow for faster panel loading & searches
 
+##Other Notes:
+- Any modifications to a CSV file will not be automatically applied to the datamodel when in accelerated mode. To integrate changes, you must rebuild the datamodels

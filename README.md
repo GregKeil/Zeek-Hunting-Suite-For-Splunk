@@ -14,8 +14,5 @@ This suite of dashboards is designed to provide an easier hunting enviroment for
 - **Splunk App For Lookup File Editing**
   - https://splunkbase.splunk.com/app/1724
 
-## Current Version Notes:
-- Version 3 has integrated drilldowns and base searches to minimize overall load
-
 ##Other Notes:
 - Any modifications to a CSV file will not be automatically applied to the datamodel when in accelerated mode. To integrate changes, you must rebuild the datamodels

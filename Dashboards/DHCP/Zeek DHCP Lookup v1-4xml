@@ -1,5 +1,5 @@
 <form version="1.1" theme="dark">
-  <label>Zeek DHCP Lookup (V1.3)</label>
+  <label>Zeek DHCP Lookup (V1.4)</label>
   <search id="dhcp_basesearch">
     <query>| tstats summariesonly=f count from datamodel=Zeek_Suite.DHCP by DHCP.orig_mac_oui, DHCP.assigned_addr, DHCP.client_fqdn, DHCP.host_name, DHCP.mac, _time
 | rename DHCP.orig_mac_oui AS orig_mac_oui, DHCP.assigned_addr AS assigned_addr, DHCP.client_fqdn AS client_fqdn, DHCP.host_name AS host_name, DHCP.mac AS mac
@@ -18,7 +18,7 @@
       <unset token="mac"></unset>
     </done>
   </search>
-  <fieldset submitButton="true" autoRun="false">
+  <fieldset submitButton="true" autoRun="true">
     <input type="time" token="time">
       <label>Time Selection</label>
       <default>
@@ -28,7 +28,7 @@
     </input>
     <input type="text" token="lookup">
       <label>Hostname OR IP</label>
-      <default>DESKTOP-5GPURR3</default>
+      <default>DESKTOP-5GPU7RE</default>
     </input>
     <input type="radio" token="lookuptype">
       <label>Lookup Type</label>
@@ -79,8 +79,8 @@ $Format$</query>
         <search base="dhcp_basesearch">
           <query>| where like ($lookuptype$, $lookup|s$)
 | dedup orig_mac_oui, $lookuptype$, mac, Date
-| where !like (assigned_addr, "-")
 | where like (mac, $mac|s$)
+| where !like (assigned_addr, "-")
 | timechart span=1d count(mac) by assigned_addr</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
@@ -98,8 +98,9 @@ $Format$</query>
         <search base="dhcp_basesearch">
           <query>| where like ($lookuptype$, $lookup|s$)
 | dedup orig_mac_oui, $lookuptype$, mac, Date
-| where !like (assigned_addr, "-")
 | where like (mac, $mac|s$)
+| appendpipe [| where like (assigned_addr, "-") | eval assigned_addr="None"]
+| where !like (assigned_addr, "-")
 | timechart span=1d count(mac) by host_name</query>
         </search>
         <option name="charting.chart">column</option>

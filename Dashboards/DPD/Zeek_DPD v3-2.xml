@@ -19,10 +19,10 @@
 | appendpipe [where like (failure_reason, "not a http request line")| eval failure_reason="Invalid HTTP request"]
 | appendpipe [where like (failure_reason, "not a http reply line")| eval failure_reason="Invalid HTTP reply"]
 | mvexpand failure_reason
-| where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection%") AND !like (failure_reason, "not a http reply line")</set>
+| where !like (failure_reason, "Binpac exception:%") AND !like (failure_reason, "not a http request line") AND !like (failure_reason, "Invalid version late in TLS connection.%") AND !like (failure_reason, "not a http reply line")</set>
       <set token="Format">| sort by -count
 | appendpipe [| stats count | where count=0 | eval "Instance"="No Instances Found" | table Instance]
-| rename analyzer AS "Detected Protocol", orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", dest_port AS "Destination Port", failure_reason AS "Failure Reason", count AS Count</set>
+| rename analyzer AS "Detected Protocol", orig_subnet AS "Source CIDR16", resp_subnet AS "Destination CIDR16", dest_port AS "Destination Port", failure_reason AS "Failure Reason", count AS Count, dest_ip AS "Destination IP", src_ip AS "Source IP"</set>
     </done>
     <earliest>$Time.earliest$</earliest>
     <latest>$Time.latest$</latest>
@@ -45,6 +45,7 @@
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
+        <option name="link.visible">false</option>
       </single>
     </panel>
   </row>
@@ -71,6 +72,7 @@ $Format$</query>
           </done>
         </search>
         <option name="refresh.display">progressbar</option>
+        <option name="link.visible">false</option>
         <drilldown>
           <set token="analyzer">$row.Detected Protocol$</set>
         </drilldown>
@@ -103,6 +105,7 @@ $Format$</query>
           </done>
         </search>
         <option name="refresh.display">progressbar</option>
+        <option name="link.visible">false</option>
         <drilldown>
           <set token="failreason">$row.Failure Reason$</set>
         </drilldown>
@@ -139,6 +142,7 @@ $Format$</query>
           </done>
         </search>
         <option name="refresh.display">progressbar</option>
+        <option name="link.visible">false</option>
         <drilldown>
           <set token="subnet">$click.value2$</set>
         </drilldown>
@@ -166,7 +170,7 @@ $SimpleFail$
 
 | where like (failure_reason, $failreason|s$)
 
-| where like (orig_subnet, $subnet|s$) OR like (orig_subnet, $subnet|s$)
+| where like (orig_subnet, $subnet|s$) OR like (resp_subnet, $subnet|s$)
 
 | stats count by analyzer, src_ip, dest_ip, dest_port, failure_reason
 
@@ -174,6 +178,7 @@ $Format$</query>
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
+        <option name="link.visible">false</option>
       </table>
     </panel>
   </row>

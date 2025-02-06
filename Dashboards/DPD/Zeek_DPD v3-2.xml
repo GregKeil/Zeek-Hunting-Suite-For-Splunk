@@ -67,6 +67,7 @@ $Format$</query>
           <done>
             <unset token="analyzer"></unset>
             <unset token="failreason"></unset>
+            <unset token="subnet"></unset>
           </done>
         </search>
         <option name="refresh.display">progressbar</option>
@@ -98,6 +99,7 @@ $SimpleFail$
 $Format$</query>
           <done>
             <unset token="failreason"></unset>
+            <unset token="subnet"></unset>
           </done>
         </search>
         <option name="refresh.display">progressbar</option>
@@ -132,6 +134,9 @@ $SimpleFail$
 | stats count by analyzer, orig_subnet, resp_subnet, failure_reason
 
 $Format$</query>
+          <done>
+            <unset token="subnet"></unset>
+          </done>
         </search>
         <option name="refresh.display">progressbar</option>
         <drilldown>
